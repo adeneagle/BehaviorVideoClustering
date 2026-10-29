@@ -1,4 +1,4 @@
-# mouse_parts: SAM3 anatomical part-mask pilot
+# BehaviorVideoClustering: SAM3 anatomical part-mask pilot
 
 Question: can visually prompted SAM3 tracking give anatomically consistent,
 temporally stable part masks (body = head + trunk, 4 paws) over whole
@@ -8,7 +8,7 @@ Run everything with the `sam3` conda env:
 
 ```bash
 conda activate sam3
-cd /home/aeagle/Aden/Code/mouse_parts
+cd /home/aeagle/Aden/Code/BehaviorVideoClustering
 ```
 
 1. `python extract_clips.py --video V.mkv --labels L.csv`

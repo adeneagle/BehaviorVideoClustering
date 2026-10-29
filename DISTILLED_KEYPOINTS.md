@@ -12,14 +12,14 @@ is ~200 M parameters and ~100x slower. Made 2026-10-19; the packaged default sin
 | Packaged model (default `seg_model.WEIGHTS`) | `Data/Behavior/PartSeg/models/partseg_20261019_185549_resnet34_kp.pt` |
 | Its training run (logs, report, evals) | `Data/Behavior/PartSeg/video2026-04-02T12_54_39_first_20/seg_runs/20261019_185549_resnet34/` |
 | TensorRT engines (fp16, RTX 3090 / sm86, TRT 10.16) | `Data/Behavior/PartSeg/models/trt_engines/partseg_b42fbc327872_*.engine`, `loc2_d67c0c086b4e_*.engine` (localizer) |
-| Code | `Code/mouse_parts/`: `seg_model.py` (network, `decode_keypoints`), `run_video.py`, `trt_engines.py` |
+| Code | `Code/BehaviorVideoClustering/`: `seg_model.py` (network, `decode_keypoints`), `run_video.py`, `trt_engines.py` |
 
 Engines are rebuilt automatically (~3 min, once) for a different GPU, TensorRT version or weights.
 
 ## Use
 
 ```bash
-conda activate sam3; cd ~/Aden/Code/mouse_parts
+conda activate sam3; cd ~/Aden/Code/BehaviorVideoClustering
 python run_video.py VIDEO.mkv --out-dir <PartSeg>/<session>/full_video/partseg_20261019_185549_resnet34_kp
 ```
 
