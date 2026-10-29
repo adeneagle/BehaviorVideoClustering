@@ -340,6 +340,48 @@ at 0.7-2 s). Frozen vs refitted AMI ~0.45-0.6 for every method. ABX error
 expected, the partition of the measured kinematics wins the measured-space
 diagnostic.
 
+## Action segmentation with TW-FINCH (added 2026-10-29)
+
+`python tw_finch.py R [--emb vjepa21_rc]` runs TW-FINCH (Sarfraz et al.,
+CVPR 2021; temporally weighted first-neighbour clustering: distance = cosine
+distance x |time difference|) on the window features (standardised, PCA 50).
+Checked against a dense transcription of the authors' code on synthetic
+videos: identical hierarchy and exact-K merges. ~45 s per 4 h session on the
+GPU. Output `R/<emb>/twfinch/`: labels.npz, segments.npz, summary.txt,
+overview.png. Three kinds of partition:
+
+- `tw_k<K>`: TW-FINCH itself at K clusters. Over a whole session the time
+  weight wins and the clusters are long blocks of the session (10-08, K=20:
+  median bout 88 s, ~3 bouts per cluster), not recurring behaviours.
+- `twseg_l<level>_k<K>`: TW-FINCH as a segmenter. The runs of one hierarchy
+  level are segments (10-08 levels 0-3: median 1.5 / 4.5 / 14 / 39 s), and
+  k-means on the segment means gives K recurring types.
+- `shufseg_l<level>_k<K>`: control, the same segment lengths in random
+  order, then the same k-means.
+
+Leak-free check (`summary.txt`, homog): share of window kinematics + posture
+variance (part_tracks, not V-JEPA) explained by segment identity. TW-FINCH
+beats shuffled lengths at every level on both sessions, by 0.035-0.042 at
+levels 1-2 (10-08: 0.525 vs 0.490, 0.352 vs 0.311; 10-06: +0.042, +0.038;
+20+ SDs of the shuffles). The boundaries fall where behaviour changes, but
+the gain is small.
+
+`score_behaviour.py --labels R/<emb>/twfinch/labels.npz` (10-08, fitted on
+itself, `score_twfinch`): a segment's label uses windows up to a segment
+ahead, so the future-movement scores are LEAKY. Even shuffled segments beat
+HDBSCAN at 0.7-5 s (shufseg_l2_k20 0.256 vs hdb_f0.005 0.232 bits; best
+twseg_l2_k20 0.349, ~90% of the continuous ceiling). Compare twseg with
+shufseg only: at <= 1 s TW-FINCH is ahead in 15/20 (level, K) pairs by
+<= 0.036 bits; at 0.7-5 s, levels 0-1 go either way (+-0.06, varies with K),
+level 2 is ahead in 4/5 and level 3 in 5/5 (+0.08-0.19). tw_k* score ~0.
+
+`label_video.py R --emb vjepa21_rc --labels R/vjepa21_rc/twfinch/labels.npz
+--key twseg_l1_k20,twseg_l2_k20,win_km_k20` writes
+`twfinch/labeled_twseg_l1_k20.mp4`: the first key labels the panel, each key
+gets an ethogram row. label_video.py now finds the window nearest in time
+(it used to count hops from the first window, which shifted labels after
+every dropped window) and shows dropped windows as "no window".
+
 ## Keypoints distilled from the lab's SLEAP model (added 2026-10-19)
 
 The SLEAP top-down model (1405 labels: ConvNeXt-T centroid + Swin-S instance)
