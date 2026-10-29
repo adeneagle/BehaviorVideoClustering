@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.nbi
+*.nbc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Data / model artifacts
+*.mp4
+*.avi
+*.mov
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+*.engine
+*.onnx
+*.slp
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
