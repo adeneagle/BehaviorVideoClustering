@@ -29,3 +29,6 @@ venv/
 
 # Claude Code worktrees
 .claude/
+
+# Rendered videos (local only)
+videos/
