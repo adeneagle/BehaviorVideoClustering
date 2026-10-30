@@ -447,6 +447,32 @@ syllable 0.30 s, 89 syllables used. 34 syllables occur in grooming, 9 cover
   snout is below 0.15 confidence in 33% of frames and the right forepaw in
   26%, and six points have nothing on the head, ears or face.
 
+## V-JEPA features inside grooming (added 2026-10-30)
+
+`python groom_vjepa.py R --emb vjepa21_fine_raw [--max-per-bout 10]` clusters
+only the windows inside one labelled behaviour (k-means on PCA of those
+windows) and tests the clusters: silhouette vs a single-Gaussian null with
+the same covariance, stability under bootstrap resampling of bouts, AMI with
+bout identity, and in how many bouts each cluster recurs; keypoint profiles
+and clip montages per cluster. Output `R/<emb>/groom/<feat>[_max<N>]/`.
+
+Embedding for short bouts: `embed_vjepa.py R --backbone vjepa2_1-l --input
+parts,raw --sample-fps 30 --hop-sec 0.1 --layers 12,18 --out-name
+vjepa21_fine` (0.52 s windows every 0.1 s; 11,882 windows, ~44 min) on the
+labelled 20 min video. 566 grooming windows in 50 of 71 bouts.
+
+- All windows: clusters split the long bouts off (raw k=4: two clusters
+  are 73% / 98% one bout; bout AMI 0.36-0.74).
+- At most 10 windows per bout: weak structure (silhouette 0.23-0.30) and
+  unstable (bootstrap ARI 0.41-0.60) for every k, except a stable raw k=2
+  split (ARI 0.86, 39 and 11 bouts). Its clips show it is place: every
+  window of the smaller cluster has the same bright object at the left of
+  the crop. Part maps (no background): no k=2 structure (silhouette 0.227
+  vs null 0.218).
+- So neither keypoints nor V-JEPA features find recurring grooming
+  sub-types in this video; 75 s of grooming seen from below may not hold
+  them.
+
 ## Keypoints distilled from the lab's SLEAP model (added 2026-10-19)
 
 The SLEAP top-down model (1405 labels: ConvNeXt-T centroid + Swin-S instance)
