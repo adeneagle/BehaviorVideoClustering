@@ -382,6 +382,44 @@ gets an ethogram row. label_video.py now finds the window nearest in time
 (it used to count hops from the first window, which shifted labels after
 every dropped window) and shows dropped windows as "no window".
 
+## Sticky HMM on the window features (added 2026-10-29)
+
+`python sticky_hmm.py R [--fit-run R_OTHER] [--ks 10,20,40] [--kappas 0,1e4]
+[--tempers 1,0.3,0.1]`: Gaussian HMM (full covariance, shrunk towards the
+global one) on the standardised PCA-50 features, MAP-EM from a k-means
+start, with `kappa` extra pseudo-counts on self-transitions (the MoSeq idea).
+Written here (numba forward-backward / Viterbi; checked against brute-force
+enumeration and on synthetic sticky HMMs). ~5-25 s per model. Two label sets
+per model: the Viterbi path (uses the whole session) and `_causal`, the
+argmax of the forward-filtered posterior (windows up to this one only), which
+score_behaviour.py can compare with km_emb / hdb on equal terms. Output
+`R/<emb>/stickyhmm/` (or `stickyhmm_cross/` with `--fit-run`).
+
+Stickiness alone barely works in 50-d: the per-window evidence swamps the
+prior (kappa 1e5 only takes K=20 bouts from 1.8 to 2.7 s mean).
+`--temper t` multiplies the emission log-likelihoods by t (consecutive
+windows overlap, so they are not independent evidence); t = 0.1 gives
+3.5-9 s median Viterbi bouts (causal 2.5-5 s). PCA 10 alone helps little.
+
+Scores (10-08, `score_stickyhmm` / `score_stickyhmm_cross`, excess bits at
+0.7-5 s over kinematic k-means at equal entropy):
+
+- Fitted on 10-08 itself: the best causal HMM (k20, kappa 0, t 0.1; 2.5 s
+  median bouts) 0.184 vs best HDBSCAN 0.171 (0.5 s bouts) and km_emb_k20
+  0.051; several causal HMMs match or beat HDBSCAN. Viterbi labels reach
+  0.376 but see the future.
+- Fitted on 10-06, applied to 10-08 (frozen): the gain mostly goes. Best
+  causal HMM 0.051 (k40, kappa 1e4, t 0.3) vs hdb_f0.01 0.050 and
+  km_emb_k20 0.040; the t = 0.1 models fall to ~0 (0.002-0.022). Probably a
+  shift of the features between sessions (not checked).
+- At <= 1 s, kinematic k-means still wins (excess_short <= 0), as for
+  every V-JEPA partition.
+
+Video: `videos/Leonidas_20261008_stickyhmm_k20_t0.1_115-130min.mp4`
+(`label_video.py --labels R/vjepa21_rc/stickyhmm/labels.npz --key
+hmm_k20_kap0_t0.1,hmm_k20_kap0_t0.1_causal,hmm_k20_kap10000_t0.1`; causal
+labels use the same state numbers as the Viterbi path).
+
 ## Keypoints distilled from the lab's SLEAP model (added 2026-10-19)
 
 The SLEAP top-down model (1405 labels: ConvNeXt-T centroid + Swin-S instance)
