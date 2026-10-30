@@ -420,6 +420,33 @@ Video: `videos/Leonidas_20261008_stickyhmm_k20_t0.1_115-130min.mp4`
 hmm_k20_kap0_t0.1,hmm_k20_kap0_t0.1_causal,hmm_k20_kap10000_t0.1`; causal
 labels use the same state numbers as the Viterbi path).
 
+## keypoint-MoSeq inside grooming (added 2026-10-29)
+
+`~/miniconda3/envs/kpms/bin/python kpms_groom.py R` (separate `kpms` conda
+env: keypoint-moseq 0.8.4 + JAX CUDA) fits keypoint-MoSeq on run_video.py's
+six keypoints (subsampled to 30 fps; AR-only kappa picked for ~0.4 s
+syllables, then the full model at kappa / 10) and describes the syllables
+inside one labelled behaviour. Output `R/kpms/` (project) and `R/kpms/groom/`
+(summary.txt, groom_syllables.csv, ethogram.png, clips/).
+
+First run: the human-labelled 20 min video
+(`video2026-04-02T12_54_39_first_20`, run_video.py with
+`partseg_20261019_185549_resnet34_kp.pt` and --labels). Face/head/paw groom
+= 75 s in 71 bouts (median 0.5 s). PCA 6 dims (90%); full model median
+syllable 0.30 s, 89 syllables used. 34 syllables occur in grooming, 9 cover
+80% of it. No recurring grooming sub-types:
+
+- The two largest (3, 0; 33% of grooming) are mostly used in "inactive"
+  (78% / 57% of their frames): sitting hunched with the forepaws at the face.
+- The groom-only syllables (30, 82, 75, 80, 56: enrichment ~15) each occur in
+  1-3 bouts; 30 and 82 cover the two long bouts (10 s, 15 s) almost whole
+  (3-5 s "syllables"). They separate whole bouts, not movements within them.
+- Their kinematic profiles barely differ (forepaws 0.07-0.1 body lengths from
+  the snout, symmetric); mainly body length (curled 0.5-0.6 vs 0.75).
+- Likely limit: the camera sees the mouse from below; during grooming the
+  snout is below 0.15 confidence in 33% of frames and the right forepaw in
+  26%, and six points have nothing on the head, ears or face.
+
 ## Keypoints distilled from the lab's SLEAP model (added 2026-10-19)
 
 The SLEAP top-down model (1405 labels: ConvNeXt-T centroid + Swin-S instance)
